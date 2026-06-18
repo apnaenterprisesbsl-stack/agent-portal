@@ -239,28 +239,21 @@ function agentLogin() {
         return;
       }
       // Verify PIN
-      var storedPin = String(data.pin || '').trim();
-var inputPin = String(pin).trim();
-        if (storedPin !== inputPin) {
-  document.getElementById('login-err').textContent = '❌ PIN galat hai!';
-  return;
-}
-      // PIN matched — login success
-      localStorage.setItem('ag_attempts', '0');
-      localStorage.removeItem('ag_lock_until');
-      loginSuccess(code, pin, data.name || code, false);
-    })
-    .catch(function() {
-      var loginBtn3 = ge('login-btn'); if(loginBtn3) loginBtn3.disabled = false;
-      // Offline — check cached PIN
-      var cachedPin = localStorage.getItem('ag_cached_pin_' + code);
-      if (cachedPin && cachedPin === pin) {
-        loginSuccess(code, pin, code, true);
-        setStatus(false, '⚠️ Offline mode — Cached PIN se login');
-      } else {
-        ge('login-err').textContent = '⚠️ Internet nahi — Online PIN se login hoga';
-      }
-    });
+      var storedPin = data.pin || '';
+
+sha256(pin).then(function(hash) {
+
+  if (String(storedPin).trim() !== hash) {
+    loginFailed('❌ PIN galat hai!');
+    return;
+  }
+
+  // SUCCESS LOGIN
+  localStorage.setItem('ag_attempts', '0');
+  localStorage.removeItem('ag_lock_until');
+
+  loginSuccess(code, pin, data.name || code, false);
+});
 }
 
 function loginSuccess(code, pin, name, offline) {
