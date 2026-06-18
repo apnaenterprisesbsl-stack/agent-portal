@@ -259,7 +259,7 @@ sha256(pin).then(function(hash) {
 function loginSuccess(code, pin, name, offline) {
   AGENT_CODE = code; AGENT_NAME = name;
   // Cache PIN for offline use
-  localStorage.setItem('ag_cached_pin_' + code, pin);
+  
   localStorage.setItem('ag_last_code', code);
   ge('login-screen').style.display = 'none';
   ge('main-app').style.display = 'block';
@@ -414,7 +414,7 @@ function showPINChange() {
   var confirm = prompt('PIN dobara likhein (confirm):');
   if (newPin !== confirm) { alert('PIN match nahi hua!'); return; }
   if (!FIREBASE_URL || FIREBASE_URL === 'DEMO') {
-    localStorage.setItem('ag_cached_pin_' + AGENT_CODE, newPin);
+    
     alert('✅ PIN locally change ho gaya!');
     return;
   }
@@ -422,7 +422,7 @@ function showPINChange() {
     method: 'PUT', headers: {'Content-Type':'application/json'},
     body: JSON.stringify(newPin)
   }).then(function() {
-    localStorage.setItem('ag_cached_pin_' + AGENT_CODE, newPin);
+    
     alert('✅ PIN successfully change ho gaya!');
   }).catch(function() { alert('❌ PIN change fail — Internet check karein'); });
 }
