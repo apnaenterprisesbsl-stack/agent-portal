@@ -361,12 +361,7 @@ function submitEntry() {
 } else {
   toast('⚠️ Demo mode — entry save ho gayi!');
 }
-    .then(function() {
-      ge('sync-indicator').style.display = 'none';
-      ge('last-sync').textContent = 'Last sync: ' + new Date().toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'});
-      setStatus(true, '🟢 Firebase se connected — Live sync ON');
-      toast('✅ Entry save + Firebase sync ho gaya!');
-    })
+    
     .catch(function() {
       ge('sync-indicator').style.display = 'none';
       setStatus(false, '⚠️ Sync fail — locally save ho gaya, retry hoga');
