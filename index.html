@@ -338,13 +338,30 @@ function submitEntry() {
   ['e-name','e-mob','e-fees','e-notes'].forEach(function(id) { ge(id).value = ''; });
 
   // Push to Firebase
-  if (FIREBASE_URL && FIREBASE_URL !== 'DEMO') {
-    ge('sync-indicator').style.display = 'flex';
-    fetch(FIREBASE_URL + '/transactions/' + AGENT_CODE + '/' + entry.id + '.json', {
-      method: 'PUT',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(entry)
-    })
+ if (FIREBASE_URL && FIREBASE_URL !== 'DEMO') {
+  ge('sync-indicator').style.display = 'flex';
+
+  fetch(FIREBASE_URL + '/transactions/' + AGENT_CODE + '/' + entry.id + '.json', {
+    method: 'PUT',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(entry)
+  })
+  .then(function() {
+    ge('sync-indicator').style.display = 'none';
+    ge('last-sync').textContent =
+      'Last sync: ' + new Date().toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'});
+    setStatus(true, '🟢 Firebase se connected — Live sync ON');
+    toast('✅ Entry save + Firebase sync ho gaya!');
+  })
+  .catch(function() {
+    ge('sync-indicator').style.display = 'none';
+    setStatus(false, '⚠️ Sync fail — locally save ho gaya');
+    toast('⚠️ Locally save hua');
+  });
+
+} else {
+  toast('⚠️ Demo mode — entry save ho gayi!');
+}
     .then(function() {
       ge('sync-indicator').style.display = 'none';
       ge('last-sync').textContent = 'Last sync: ' + new Date().toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'});
