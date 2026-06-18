@@ -239,11 +239,12 @@ function agentLogin() {
         return;
       }
       // Verify PIN
-      var storedPin = data.pin || '';
-      if (storedPin !== pin) {
-        loginFailed('❌ PIN galat hai!');
-        return;
-      }
+      var storedPin = String(data.pin || '').trim();
+var inputPin = String(pin).trim();
+        if (storedPin !== inputPin) {
+  document.getElementById('login-err').textContent = '❌ PIN galat hai!';
+  return;
+}
       // PIN matched — login success
       localStorage.setItem('ag_attempts', '0');
       localStorage.removeItem('ag_lock_until');
