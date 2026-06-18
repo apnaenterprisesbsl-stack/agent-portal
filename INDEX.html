@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Portal — Apna Enterprises</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--blue:#185FA5;--bl:#E6F1FB;--bd:#0C447C;--green:#3B6D11;--gl:#EAF3DE;--red:#A32D2D;--rl:#FCEBEB;--amber:#854F0B;--al:#FAEEDA;--border:#E0E0E0;--surface:#fff;--bg:#F2F4F8;--muted:#666;--text:#1a1a1a;--r:10px;--rs:7px}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
+
+/* LOGIN SCREEN */
+#login-screen{position:fixed;inset:0;background:linear-gradient(135deg,var(--blue),var(--bd));display:flex;align-items:center;justify-content:center;z-index:9999}
+.login-box{background:#fff;border-radius:20px;padding:36px 32px;width:340px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.3)}
+.login-logo{font-size:48px;margin-bottom:12px}
+.login-title{font-size:18px;font-weight:700;margin-bottom:4px;color:var(--text)}
+.login-sub{font-size:13px;color:var(--muted);margin-bottom:24px}
+.login-input{width:100%;padding:12px 14px;border:2px solid var(--border);border-radius:var(--rs);font-size:16px;text-align:center;letter-spacing:3px;font-weight:700;outline:none;margin-bottom:12px;text-transform:uppercase}
+.login-input:focus{border-color:var(--blue)}
+.login-btn{width:100%;padding:12px;background:var(--blue);color:#fff;border:none;border-radius:var(--rs);font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px}
+.login-err{color:var(--red);font-size:12px;min-height:18px}
+.config-hint{font-size:11px;color:var(--muted);margin-top:10px;padding:10px;background:var(--bg);border-radius:6px;text-align:left}
+
+/* TOPBAR */
+.topbar{background:var(--blue);color:#fff;padding:0 16px;display:flex;align-items:center;gap:10px;height:52px;position:sticky;top:0;z-index:100}
+.t-logo{width:32px;height:32px;background:rgba(255,255,255,.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px}
+.t-title{font-size:14px;font-weight:700;flex:1}
+.t-sub{font-size:10px;opacity:.75;display:block}
+.t-badge{background:rgba(255,255,255,.2);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600}
+.t-btn{background:rgba(255,255,255,.15);border:none;color:#fff;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:12px}
+
+/* STATUS BAR */
+.status-bar{background:var(--gl);border-bottom:1px solid #c8e6c9;padding:8px 16px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--green)}
+.status-bar.offline{background:var(--rl);border-color:#f09595;color:var(--red)}
+.status-dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+/* MAIN */
+.main{padding:16px;max-width:600px;margin:0 auto}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+.sc{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);padding:14px;text-align:center}
+.sl{font-size:9px;color:var(--muted);margin-bottom:5px;font-weight:700;text-transform:uppercase}
+.sv{font-size:22px;font-weight:700;color:var(--blue)}.sv.green{color:var(--green)}
+.panel{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);padding:18px;margin-bottom:16px}
+.pt{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);padding-bottom:10px;color:var(--text)}
+.fg{margin-bottom:11px}
+.fg label{font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
+.fg input,.fg select,.fg textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--rs);font-size:14px;color:var(--text);background:var(--surface);outline:none}
+.fg input:focus,.fg select:focus{border-color:var(--blue)}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer;border:none;width:100%}
+.bp{background:var(--blue);color:#fff}.bs{background:var(--surface);color:var(--text);border:1px solid var(--border)}
+.badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px}
+.ba{background:var(--al);color:var(--amber)}.bg2{background:var(--gl);color:var(--green)}.bb{background:var(--bl);color:var(--bd)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{font-size:9px;font-weight:700;color:var(--muted);text-align:left;padding:7px 9px;border-bottom:1px solid var(--border);background:var(--bg);text-transform:uppercase}
+td{padding:9px;border-bottom:1px solid #f2f2f2;color:var(--text);vertical-align:middle}
+.empty{text-align:center;padding:28px;color:var(--muted);font-size:13px}
+#toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#2D6A0E;color:#fff;padding:9px 22px;border-radius:99px;font-size:13px;font-weight:600;display:none;z-index:9998;white-space:nowrap}
+.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.svc-tile{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 8px;cursor:pointer;text-align:center;transition:all .15s}
+.svc-tile:hover{border-color:var(--blue);transform:translateY(-1px)}
+.svc-tile .ico{font-size:20px;margin-bottom:5px}
+.svc-tile .sn{font-size:11px;font-weight:600}
+.svc-tile .sd{font-size:10px;color:var(--muted)}
+.sync-indicator{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--green);margin-top:6px}
+.sync-spin{animation:spin 1s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:480px){.f2{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div id="toast"></div>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">🏪</div>
+    <div class="login-title">Apna Enterprises</div>
+    <div class="login-sub">Agent / Retailer Portal</div>
+
+    <!-- FIREBASE URL SETUP (shows only if not set) -->
+    <div id="fb-setup-box" style="display:none;margin-bottom:16px;text-align:left">
+      <div style="background:#FAEEDA;border:1px solid #EF9F27;border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:#633806">
+        ⚠️ <strong>Firebase URL set nahi hai!</strong><br>Admin se Firebase URL lo aur neeche paste karo.
+      </div>
+      <div style="font-size:11px;font-weight:600;color:#666;margin-bottom:4px">FIREBASE DATABASE URL:</div>
+      <input id="fb-url-setup" type="text" placeholder="https://your-project-default-rtdb.firebaseio.com" value="https://apna-enterprises-c20b3-default-rtdb.firebaseio.com" style="width:100%;padding:8px 10px;border:1.5px solid #185FA5;border-radius:6px;font-size:11px;font-family:monospace;margin-bottom:8px;outline:none">
+      <button onclick="saveFirebaseURL()" style="width:100%;padding:9px;background:#185FA5;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">🔥 Firebase Save Karo</button>
+      <div style="text-align:center;margin-top:8px"><a href="#" onclick="skipFirebase()" style="font-size:11px;color:#666">Demo mode mein continue karo →</a></div>
+    </div>
+    <div id="login-form-box">
+    <div style="margin-bottom:8px;font-size:12px;color:#666;font-weight:600">STEP 1 — Agent Code</div>
+    <input class="login-input" id="agent-code-input" type="text" placeholder="AGENT CODE (e.g. AGT001)" maxlength="10" autocomplete="off" oninput="this.value=this.value.toUpperCase()" style="margin-bottom:8px">
+    <div style="margin-bottom:8px;font-size:12px;color:#666;font-weight:600">STEP 2 — 4-Digit PIN</div>
+    <input class="login-input" id="agent-pin-input" type="password" placeholder="PIN" maxlength="4" inputmode="numeric" style="margin-bottom:12px;letter-spacing:8px;font-size:20px">
+    <button class="login-btn" onclick="agentLogin()" id="login-btn">🔑 Secure Login</button>
+    <div class="login-err" id="login-err"></div>
+    <div id="attempts-warn" style="font-size:11px;color:#854F0B;margin-top:6px;display:none"></div>
+    <div class="config-hint">
+      <strong>ℹ️ Login:</strong> Admin se Agent Code aur 4-digit PIN lo.<br>
+      3 galat attempts = 10 minute lockout.
+    </div>
+    </div><!-- end login-form-box -->
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="main-app" style="display:none">
+  <div class="topbar">
+    <div class="t-logo">🏪</div>
+    <div style="flex:1">
+      <span class="t-title">Apna Enterprises</span>
+      <span class="t-sub" id="agent-name-display">Agent Portal</span>
+    </div>
+    <div class="t-badge" id="agent-code-display">---</div>
+    <button class="t-btn" onclick="showPINChange()">🔐 PIN</button>
+    <button class="t-btn" onclick="agentLogout()">🚪 Logout</button>
+    <div id="pin-change-panel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:999;align-items:center;justify-content:center;display:none">
+    </div>
+  </div>
+
+  <div class="status-bar" id="status-bar">
+    <div class="status-dot"></div>
+    <span id="status-text">Firebase se connect ho raha hai...</span>
+    <button onclick="changeFirebaseURL()" style="margin-left:auto;background:none;border:1px solid currentColor;border-radius:4px;padding:2px 8px;font-size:10px;cursor:pointer;color:inherit">🔥 URL Change</button>
+  </div>
+
+  <div class="main">
+    <div class="stats">
+      <div class="sc"><div class="sl">Aaj ke</div><div class="sv" id="ag-today">0</div></div>
+      <div class="sc"><div class="sl">Aaj Kamai</div><div class="sv green" id="ag-income">₹0</div></div>
+      <div class="sc"><div class="sl">Is Mahine</div><div class="sv green" id="ag-month">₹0</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="pt">⚡ Quick Service Entry</div>
+      <div class="svc-grid">
+        <div class="svc-tile" onclick="quickEntry('Voter Card','100')"><div class="ico">🪪</div><div class="sn">Voter Card</div><div class="sd">₹100</div></div>
+        <div class="svc-tile" onclick="quickEntry('PAN Card','120')"><div class="ico">💳</div><div class="sn">PAN Card</div><div class="sd">₹120</div></div>
+        <div class="svc-tile" onclick="quickEntry('Passport','200')"><div class="ico">📗</div><div class="sn">Passport</div><div class="sd">₹200</div></div>
+        <div class="svc-tile" onclick="quickEntry('Train Ticket','50')"><div class="ico">🚂</div><div class="sn">Train Ticket</div><div class="sd">₹50</div></div>
+        <div class="svc-tile" onclick="quickEntry('Flight Ticket','100')"><div class="ico">✈️</div><div class="sn">Flight</div><div class="sd">₹100</div></div>
+        <div class="svc-tile" onclick="quickEntry('Bus Ticket','30')"><div class="ico">🚌</div><div class="sn">Bus Ticket</div><div class="sd">₹30</div></div>
+        <div class="svc-tile" onclick="quickEntry('B/W Xerox','2')"><div class="ico">🖨️</div><div class="sn">B/W Xerox</div><div class="sd">₹2</div></div>
+        <div class="svc-tile" onclick="quickEntry('Colour Xerox','5')"><div class="ico">🎨</div><div class="sn">Colour</div><div class="sd">₹5</div></div>
+        <div class="svc-tile" onclick="quickEntry('Money Transfer','20')"><div class="ico">💸</div><div class="sn">Money Transfer</div><div class="sd">₹20</div></div>
+      </div>
+
+      <div class="fg"><label>Customer Naam *</label><input id="e-name" type="text" placeholder="Customer ka naam" autocomplete="off"></div>
+      <div class="f2">
+        <div class="fg"><label>Mobile</label><input id="e-mob" type="tel" placeholder="10 digit"></div>
+        <div class="fg"><label>Fees (₹)</label><input id="e-fees" type="number" placeholder="0" min="0"></div>
+      </div>
+      <div class="f2">
+        <div class="fg"><label>Service</label>
+          <select id="e-svc">
+            <option>Voter Card - New</option><option>Voter Card - Correction</option>
+            <option>PAN Card - New</option><option>PAN Card - Correction</option>
+            <option>Passport</option><option>Train Ticket</option><option>Flight Ticket</option>
+            <option>Bus Ticket</option><option>B/W Xerox</option><option>Colour Xerox</option>
+            <option>Printing</option><option>Money Transfer</option><option>Other</option>
+          </select>
+        </div>
+        <div class="fg"><label>Payment</label>
+          <select id="e-pay"><option>Cash</option><option>UPI</option><option>Pending</option></select>
+        </div>
+      </div>
+      <div class="fg"><label>Notes</label><input id="e-notes" type="text" placeholder="Koi khas baat..."></div>
+      <button class="btn bp" onclick="submitEntry()">✅ Submit & Sync</button>
+      <div class="sync-indicator" id="sync-indicator" style="display:none">
+        <span class="sync-spin">🔄</span> Firebase mein sync ho raha hai...
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="pt">📋 Aaj ki Entries <span style="margin-left:auto;font-size:11px;font-weight:400;color:var(--muted)" id="last-sync"></span></div>
+      <div id="ag-entries"><div class="empty">Abhi koi entry nahi</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// FIREBASE CONFIG — ADMIN SE MILEGA, YAHAN PASTE KARO
+// ============================================================
+var FIREBASE_URL = localStorage.getItem('ag_fb_url') || 'https://apna-enterprises-c20b3-default-rtdb.firebaseio.com';
+console.log("FIREBASE_URL =", FIREBASE_URL);
+// Example: 'https://apna-enterprises-default-rtdb.firebaseio.com'
+// ============================================================
+
+var AGENT_CODE = '';
+var AGENT_NAME = '';
+var localEntries = [];
+
+function toast(msg, color) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = color || '#2D6A0E';
+  t.style.display = 'block';
+  setTimeout(function() { t.style.display = 'none'; }, 2500);
+}
+
+function ge(id) { return document.getElementById(id); }
+function gv(id) { var e = ge(id); return e ? e.value.trim() : ''; }
+
+var loginAttempts = parseInt(localStorage.getItem('ag_attempts')||'0');
+var lockUntil = parseInt(localStorage.getItem('ag_lock_until')||'0');
+
+function agentLogin() {
+  // Check lockout
+  if (Date.now() < lockUntil) {
+    var mins = Math.ceil((lockUntil - Date.now()) / 60000);
+    ge('login-err').textContent = '🔒 ' + mins + ' minute baad try karein (locked)';
+    return;
+  }
+
+  var code = (ge('agent-code-input')||{value:''}).value.trim().toUpperCase();
+  var pin = (ge('agent-pin-input')||{value:''}).value.trim();
+
+  if (!code || code.length < 3) { ge('login-err').textContent = '❌ Agent Code likhein!'; return; }
+  if (!pin || pin.length !== 4 || !/^\d+$/.test(pin)) { ge('login-err').textContent = '❌ 4-digit PIN likhein!'; return; }
+
+  ge('login-err').textContent = '⏳ Verify ho raha hai...';
+  var loginBtn = ge('login-btn'); if(loginBtn) loginBtn.disabled = true;
+
+     if (!FIREBASE_URL || FIREBASE_URL === 'DEMO') {
+    // Demo mode
+    loginSuccess(code, pin, 'Demo Agent', true);
+    return;
+  }
+
+  // Real Firebase — verify code + PIN
+  fetch(FIREBASE_URL + '/agents/' + code + '.json')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var loginBtn2 = ge('login-btn'); if(loginBtn2) loginBtn2.disabled = false;
+      if (!data) {
+        loginFailed('❌ Agent Code galat hai!');
+        return;
+      }
+      // Verify PIN
+      var storedPin = data.pin || '';
+      if (storedPin !== pin) {
+        loginFailed('❌ PIN galat hai!');
+        return;
+      }
+      // PIN matched — login success
+      localStorage.setItem('ag_attempts', '0');
+      localStorage.removeItem('ag_lock_until');
+      loginSuccess(code, pin, data.name || code, false);
+    })
+    .catch(function() {
+      var loginBtn3 = ge('login-btn'); if(loginBtn3) loginBtn3.disabled = false;
+      // Offline — check cached PIN
+      var cachedPin = localStorage.getItem('ag_cached_pin_' + code);
+      if (cachedPin && cachedPin === pin) {
+        loginSuccess(code, pin, code, true);
+        setStatus(false, '⚠️ Offline mode — Cached PIN se login');
+      } else {
+        ge('login-err').textContent = '⚠️ Internet nahi — Online PIN se login hoga';
+      }
+    });
+}
+
+function loginSuccess(code, pin, name, offline) {
+  AGENT_CODE = code; AGENT_NAME = name;
+  // Cache PIN for offline use
+  localStorage.setItem('ag_cached_pin_' + code, pin);
+  localStorage.setItem('ag_last_code', code);
+  ge('login-screen').style.display = 'none';
+  ge('main-app').style.display = 'block';
+  ge('agent-code-display').textContent = code;
+  ge('agent-name-display').textContent = name;
+  setStatus(!offline, offline ? '⚠️ Offline mode' : '🟢 Firebase connected — Live sync ON');
+  localEntries = JSON.parse(localStorage.getItem('agent_' + code + '_entries') || '[]');
+  if (!offline) loadFromFirebase();
+  renderEntries(); updateStats();
+}
+
+function loginFailed(msg) {
+  loginAttempts++;
+  localStorage.setItem('ag_attempts', loginAttempts);
+  var warn = ge('attempts-warn');
+  if (loginAttempts >= 3) {
+    var lockTime = Date.now() + 10 * 60 * 1000; // 10 min
+    localStorage.setItem('ag_lock_until', lockTime);
+    localStorage.setItem('ag_attempts', '0');
+    ge('login-err').textContent = '🔒 3 galat attempts — 10 minute ke liye locked!';
+    if(warn) { warn.style.display='none'; }
+  } else {
+    ge('login-err').textContent = msg;
+    if(warn) { warn.textContent = (3-loginAttempts) + ' attempts baaki hain'; warn.style.display='block'; }
+  }
+  var loginBtn4 = ge('login-btn'); if(loginBtn4) loginBtn4.disabled = false;
+}
+
+function agentLogout() {
+  if (!confirm('Logout karein?')) return;
+  AGENT_CODE = '';
+  ge('main-app').style.display = 'none';
+  ge('login-screen').style.display = 'flex';
+  ge('agent-code-input').value = '';
+  ge('login-err').textContent = '';
+}
+
+function setStatus(online, msg) {
+  var bar = ge('status-bar');
+  bar.className = 'status-bar' + (online ? '' : ' offline');
+  ge('status-text').textContent = msg;
+}
+
+function quickEntry(svc, fees) {
+  ge('e-svc').value = svc;
+  ge('e-fees').value = fees;
+  ge('e-name').focus();
+}
+
+function submitEntry() {
+  var name = gv('e-name');
+  if (!name) { alert('Customer naam likhein!'); return; }
+  var fees = parseFloat(gv('e-fees')) || 0;
+  var now = new Date();
+  var entry = {
+    id: Date.now(),
+    agentCode: AGENT_CODE,
+    agentName: AGENT_NAME,
+    customer: name,
+    mobile: gv('e-mob'),
+    service: gv('e-svc'),
+    fees: fees,
+    payment: gv('e-pay'),
+    notes: gv('e-notes'),
+    date: now.toLocaleDateString('en-IN'),
+    time: now.toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'}),
+    ts: now.getTime()
+  };
+
+  localEntries.unshift(entry);
+  localStorage.setItem('agent_' + AGENT_CODE + '_entries', JSON.stringify(localEntries));
+  renderEntries();
+  updateStats();
+
+  // Clear form
+  ['e-name','e-mob','e-fees','e-notes'].forEach(function(id) { ge(id).value = ''; });
+
+  // Push to Firebase
+  if (FIREBASE_URL && FIREBASE_URL !== 'DEMO') {
+    ge('sync-indicator').style.display = 'flex';
+    fetch(FIREBASE_URL + '/transactions/' + AGENT_CODE + '/' + entry.id + '.json', {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(entry)
+    })
+    .then(function() {
+      ge('sync-indicator').style.display = 'none';
+      ge('last-sync').textContent = 'Last sync: ' + new Date().toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'});
+      setStatus(true, '🟢 Firebase se connected — Live sync ON');
+      toast('✅ Entry save + Firebase sync ho gaya!');
+    })
+    .catch(function() {
+      ge('sync-indicator').style.display = 'none';
+      setStatus(false, '⚠️ Sync fail — locally save ho gaya, retry hoga');
+      toast('⚠️ Locally save hua — internet aa gaya toh sync hoga', '#854F0B');
+    });
+  } else {
+    toast('✅ Demo mode — entry save ho gayi!');
+  }
+}
+
+function loadFromFirebase() {
+ if (!FIREBASE_URL || FIREBASE_URL === 'DEMO') return; 
+  fetch(FIREBASE_URL + '/transactions/' + AGENT_CODE + '.json')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data) {
+        var entries = Object.values(data).sort(function(a,b) { return b.ts - a.ts; });
+        localEntries = entries;
+        localStorage.setItem('agent_' + AGENT_CODE + '_entries', JSON.stringify(localEntries));
+        renderEntries();
+        updateStats();
+        ge('last-sync').textContent = 'Synced: ' + new Date().toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'});
+      }
+    })
+    .catch(function() {});
+}
+
+function renderEntries() {
+  var el = ge('ag-entries');
+  var today = new Date().toLocaleDateString('en-IN');
+  var list = localEntries.filter(function(e) { return e.date === today; });
+  if (!list.length) {
+    el.innerHTML = '<div class="empty">Aaj koi entry nahi</div>';
+    return;
+  }
+  el.innerHTML = '<table><thead><tr><th>Customer</th><th>Service</th><th>Fees</th><th>Time</th></tr></thead><tbody>' +
+    list.map(function(e) {
+      return '<tr><td><strong>' + e.customer + '</strong>'+(e.mobile?'<br><small style="color:#888">'+e.mobile+'</small>':'')+'</td><td style="font-size:11px">' + e.service + '</td><td>₹' + (e.fees||0) + '</td><td style="font-size:11px;color:#888">' + (e.time||'') + '</td></tr>';
+    }).join('') + '</tbody></table>';
+}
+
+function updateStats() {
+  var today = new Date().toLocaleDateString('en-IN');
+  var ma = Date.now() - 30 * 864e5;
+  var todayEntries = localEntries.filter(function(e) { return e.date === today; });
+  var todayIncome = todayEntries.reduce(function(a,e) { return a + (e.fees||0); }, 0);
+  var monthIncome = localEntries.filter(function(e) { return e.ts >= ma; }).reduce(function(a,e) { return a + (e.fees||0); }, 0);
+  ge('ag-today').textContent = todayEntries.length;
+  ge('ag-income').textContent = '₹' + Math.round(todayIncome);
+  ge('ag-month').textContent = '₹' + Math.round(monthIncome);
+}
+
+document.getElementById('agent-code-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') agentLogin();
+});
+
+// PIN Change for Agent
+function showPINChange() {
+  var newPin = prompt('Naya 4-digit PIN likhein:');
+  if (!newPin || newPin.length !== 4 || !/^\d+$/.test(newPin)) { alert('Valid 4-digit PIN chahiye!'); return; }
+  var confirm = prompt('PIN dobara likhein (confirm):');
+  if (newPin !== confirm) { alert('PIN match nahi hua!'); return; }
+  if (!FIREBASE_URL || FIREBASE_URL === 'DEMO') {
+    localStorage.setItem('ag_cached_pin_' + AGENT_CODE, newPin);
+    alert('✅ PIN locally change ho gaya!');
+    return;
+  }
+  fetch(FIREBASE_URL + '/agents/' + AGENT_CODE + '/pin.json', {
+    method: 'PUT', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(newPin)
+  }).then(function() {
+    localStorage.setItem('ag_cached_pin_' + AGENT_CODE, newPin);
+    alert('✅ PIN successfully change ho gaya!');
+  }).catch(function() { alert('❌ PIN change fail — Internet check karein'); });
+}
+
+// Auto-fill last used code
+function saveFirebaseURL() {
+  var url = (document.getElementById('fb-url-setup')||{value:''}).value.trim().replace(/\/$/,'');
+  if (!url || url.length < 20) { alert('Valid Firebase URL daalo!'); return; }
+  localStorage.setItem('ag_fb_url', url);
+  FIREBASE_URL = url;
+  document.getElementById('fb-setup-box').style.display = 'none';
+  document.getElementById('login-form-box').style.display = 'block';
+  toast('Firebase connected!');
+}
+function skipFirebase() {
+  FIREBASE_URL = 'DEMO';
+  document.getElementById('fb-setup-box').style.display = 'none';
+  document.getElementById('login-form-box').style.display = 'block';
+}
+window.addEventListener('DOMContentLoaded', function() {
+  // Check Firebase URL
+  var savedFbUrl = localStorage.getItem('ag_fb_url');
+  if (savedFbUrl) {
+    FIREBASE_URL = savedFbUrl;
+    document.getElementById('fb-setup-box').style.display = 'none';
+    document.getElementById('login-form-box').style.display = 'block';
+  } else {
+    // Show Firebase setup
+    document.getElementById('fb-setup-box').style.display = 'block';
+    document.getElementById('login-form-box').style.display = 'none';
+  }
+
+  var lastCode = localStorage.getItem('ag_last_code');
+  var inp = ge('agent-code-input');
+  if (lastCode && inp) inp.value = lastCode;
+  // Check lockout
+  var lockUntil2 = parseInt(localStorage.getItem('ag_lock_until')||'0');
+  if (Date.now() < lockUntil2) {
+    var mins = Math.ceil((lockUntil2 - Date.now()) / 60000);
+    var err = ge('login-err'); if(err) err.textContent = '🔒 ' + mins + ' minute baad try karein';
+    var btn = ge('login-btn'); if(btn) btn.disabled = true;
+  }
+  // Enter key support
+  var pinInp = ge('agent-pin-input');
+  if (pinInp) pinInp.addEventListener('keydown', function(e) { if(e.key==='Enter') agentLogin(); });
+});
+
+function changeFirebaseURL() {
+  var url = prompt('Naya Firebase URL daalo:', FIREBASE_URL);
+  if (!url) return;
+  url = url.trim().replace(/\/$/, '');
+  localStorage.setItem('ag_fb_url', url);
+  FIREBASE_URL = url;
+  toast('Firebase URL update ho gaya! Reload karo.');
+  setTimeout(function() { location.reload(); }, 1500);
+}
+</script>
+</body>
+</html>
