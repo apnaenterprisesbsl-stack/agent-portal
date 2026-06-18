@@ -253,7 +253,6 @@ sha256(pin).then(function(hash) {
   localStorage.removeItem('ag_lock_until');
 
   loginSuccess(code, pin, data.name || code, false);
-});
 
 
 function loginSuccess(code, pin, name, offline) {
