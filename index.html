@@ -359,7 +359,7 @@ function submitEntry() {
 } else {
   toast('⚠️ Demo mode — entry save ho gayi!');
 }
-
+}
 function loadFromFirebase() {
  if (!FIREBASE_URL || FIREBASE_URL === 'DEMO') return; 
   fetch(FIREBASE_URL + '/transactions/' + AGENT_CODE + '.json')
